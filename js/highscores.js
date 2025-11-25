@@ -3,44 +3,44 @@
         this.collectionName = 'highscores';
         this.maxScores = 100;
         this.scores = [];
-        this.isLoading = true;
-        
-        // Load scores from Firebase on initialization
-        this.loadScores();
+        this.isLoading = false;
     }
 
     async loadScores() {
+        console.log('Fetching scores from Firebase...');
         try {
             this.isLoading = true;
-            const snapshot = await db.collection(this.collectionName)
-                .orderBy('score', 'desc')
-                .limit(this.maxScores)
-                .get();
+            
+            // Fetch all scores, sort client-side to avoid needing an index
+            const snapshot = await db.collection(this.collectionName).get();
             
             this.scores = snapshot.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data()
             }));
+            
+            // Sort by score descending
+            this.scores.sort((a, b) => b.score - a.score);
+            
+            // Keep only top 100
+            this.scores = this.scores.slice(0, this.maxScores);
+            
             this.isLoading = false;
-            console.log('Loaded', this.scores.length, 'scores from Firebase');
+            console.log('Successfully loaded', this.scores.length, 'scores from Firebase');
+            return true;
         } catch (error) {
             console.error('Error loading scores from Firebase:', error);
             this.isLoading = false;
-            // Fallback to localStorage if Firebase fails
-            this.scores = this.loadLocalScores();
+            return false;
         }
     }
 
-    loadLocalScores() {
-        const stored = localStorage.getItem('homerunDerbyHighScores');
-        return stored ? JSON.parse(stored) : [];
-    }
-
     async isHighScore(score) {
-        // Refresh scores before checking
+        // Always refresh scores before checking
         await this.loadScores();
         
         if (this.scores.length < this.maxScores) return true;
+        if (this.scores.length === 0) return true;
         return score > this.scores[this.scores.length - 1].score;
     }
 
@@ -57,22 +57,21 @@
 
         try {
             // Add to Firebase
-            await db.collection(this.collectionName).add(newScore);
-            console.log('Score added to Firebase!');
+            const docRef = await db.collection(this.collectionName).add(newScore);
+            console.log('Score added to Firebase with ID:', docRef.id);
             
             // Reload scores to get updated list
             await this.loadScores();
+            return true;
         } catch (error) {
             console.error('Error saving to Firebase:', error);
-            // Fallback to localStorage
-            this.scores.push(newScore);
-            this.scores.sort((a, b) => b.score - a.score);
-            this.scores = this.scores.slice(0, this.maxScores);
-            localStorage.setItem('homerunDerbyHighScores', JSON.stringify(this.scores));
+            return false;
         }
     }
 
-    getHighScore() {
+    async getHighScore() {
+        // Fetch latest scores
+        await this.loadScores();
         return this.scores.length > 0 ? this.scores[0].score : 0;
     }
 
@@ -85,13 +84,18 @@
         if (!container) return;
 
         // Show loading state
-        container.innerHTML = '<p class="loading-scores">Loading scores...</p>';
+        container.innerHTML = '<p class="loading-scores">⏳ Loading global scores...</p>';
         
-        // Refresh scores from Firebase
-        await this.loadScores();
+        // Always fetch fresh from Firebase
+        const success = await this.loadScores();
+
+        if (!success) {
+            container.innerHTML = '<p class="no-scores">⚠️ Could not connect to leaderboard. Please try again.</p>';
+            return;
+        }
 
         if (this.scores.length === 0) {
-            container.innerHTML = '<p class="no-scores">No high scores yet! Be the first!</p>';
+            container.innerHTML = '<p class="no-scores">🏆 No high scores yet! Be the first!</p>';
             return;
         }
 
@@ -108,6 +112,7 @@
         });
         
         html += '</tbody></table>';
+        html += '<p class="scores-footer">🌐 Global Leaderboard</p>';
         container.innerHTML = html;
     }
 }
