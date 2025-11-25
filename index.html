@@ -1,0 +1,61 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Run Derby - Retro Baseball</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+        <div id="ui">
+            <div id="score">Home Runs: 0</div>
+            <div id="highScore">High Score: 0</div>
+            <div id="pitchSpeed" class="hidden">Speed: 0</div>
+        </div>
+        <div id="menu" class="screen">
+            <h1 class="retro-title">HOME RUN DERBY</h1>
+            <div class="subtitle">~ Early 2000s Edition ~</div>
+            <div class="menu-box">
+                <button id="startBtn" class="retro-btn" onclick="testStartGame()">PLAY BALL!</button>
+                <button id="scoresBtn" class="retro-btn" onclick="testShowHighScores()">HIGH SCORES</button>
+                <div class="instructions">
+                    <h3>How to Play:</h3>
+                    <p> Click or press SPACE to swing!</p>
+                    <p> Time your swing as the ball reaches home plate</p>
+                    <p> All hits are home runs!</p>
+                    <p> Miss a pitch and you're OUT!</p>
+                </div>
+            </div>
+        </div>
+        <div id="gameOver" class="screen hidden">
+            <h2 class="game-over-title">GAME OVER!</h2>
+            <p id="finalScore" class="final-score">Home Runs: 0</p>
+            <div id="newHighScore" class="hidden">
+                <h3 class="celebration"> NEW HIGH SCORE! </h3>
+                <div class="name-entry">
+                    <label for="nameInput">Enter Your Name:</label>
+                    <input type="text" id="nameInput" maxlength="8" placeholder="PLAYER">
+                    <button id="submitScore" class="retro-btn">SUBMIT</button>
+                </div>
+            </div>
+            <div class="button-group">
+                <button id="playAgain" class="retro-btn">PLAY AGAIN</button>
+                <button id="mainMenu" class="retro-btn secondary">MAIN MENU</button>
+            </div>
+        </div>
+        <div id="highScores" class="screen hidden">
+            <h2> HIGH SCORES </h2>
+            <div id="scoresList" class="scores-container"></div>
+            <button id="backBtn" class="retro-btn secondary">BACK</button>
+        </div>
+        <div id="swingFeedback" class="hidden"></div>
+    </div>
+    <script src="js/highscores.js"></script>
+    <script src="js/physics.js"></script>
+    <script src="js/input.js"></script>
+    <script src="js/renderer.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>
