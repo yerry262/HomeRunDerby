@@ -227,12 +227,13 @@ class Game {
         document.getElementById('highScore').textContent = `High Score: ${highScore}`;
     }
 
-    endGame() {
+    async endGame() {
         this.setState(GameStates.GAME_OVER);
         document.getElementById('finalScore').textContent = `Home Runs: ${this.score}`;
         
-        // Check if it's a high score
-        if (this.highScoreManager.isHighScore(this.score)) {
+        // Check if it's a high score (async now)
+        const isHigh = await this.highScoreManager.isHighScore(this.score);
+        if (isHigh) {
             document.getElementById('newHighScore').classList.remove('hidden');
             document.getElementById('nameInput').value = '';
             document.getElementById('nameInput').focus();
@@ -241,17 +242,17 @@ class Game {
         }
     }
 
-    submitHighScore() {
+    async submitHighScore() {
         const name = document.getElementById('nameInput').value;
-        this.highScoreManager.addScore(name, this.score);
+        await this.highScoreManager.addScore(name, this.score);
         this.updateHighScoreDisplay();
         document.getElementById('newHighScore').classList.add('hidden');
     }
 
-    showHighScores() {
+    async showHighScores() {
         console.log('showHighScores called');
         this.setState(GameStates.HIGH_SCORES);
-        this.highScoreManager.displayScores('scoresList');
+        await this.highScoreManager.displayScores('scoresList');
     }
 
     gameLoop() {
