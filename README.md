@@ -1,5 +1,7 @@
 # 🏟️ HOME RUN DERBY - Early 2000s Edition ⚾
 
+## 🌐 Play Now: [https://yerry262.github.io/HomeRunDerby/](https://yerry262.github.io/HomeRunDerby/)
+
 A retro-styled browser-based baseball batting game inspired by classic early 2000s arcade games!
 
 ## 🎮 How to Play
